@@ -24,21 +24,21 @@ naive(
 )
 }
 \arguments{
-\item{df}{A data frame with time features on columns. In case of missing values, automatic missing imputation through kalman filter will be performed.}
+\item{df}{A data frame with time features on columns (all numerics or all categories, but not both). In case of missing values, automatic missing imputation through kalman filter will be performed.}
 
 \item{seq_len}{Positive integer. Time-step number of the forecasting sequence. Default: NULL (random selection within boundaries).}
 
 \item{ci}{Confidence interval for prediction. Default: 0.8}
 
-\item{smoother}{Logical. Flag to TRUE for loess smoothing. Default: FALSE.}
+\item{smoother}{Logical. Flag to TRUE for loess smoothing (only for numeric series). Default: FALSE.}
 
 \item{cover}{Positive numeric. The quantile cover around the location parameter (between 0 and 1). Default: NULL (random selection within boundaries).}
 
 \item{stride}{Positive integer. Shift between subsequent sequences. Default: NULL (random selection within boundaries).}
 
-\item{method}{String. Distance method using during the comparison of time sequences. Possible options are: "euclidean", "manhattan", "canberra1", "minimum", "maximum", "minkowski", "bhattacharyya", "kullback_leibler", "jensen_shannon". Default: NULL (random selection within boundaries).}
+\item{method}{String. Distance method using during the comparison of time sequences. Possible options are: "euclidean", "manhattan", "minkowski". Default: NULL (random selection).}
 
-\item{location}{String. Statistic used to center the cover parameter. Possible options are: "mean", "mode" (parzen method), "median". Default: NULL (random selection within boundaries).}
+\item{location}{String. Statistic used to center the cover parameter. Possible options are: "mean", "mode" (parzen method), "median". Default: NULL (random selection).}
 
 \item{n_windows}{Positive integer. Number of validation windows to test prediction error. Default: 10.}
 
@@ -59,7 +59,7 @@ This function returns a list including:
 \item history: a table with the explored models' hyper-parameters and validation errors
 \item best_model: best combination resulting from the average prediction score across different ranks and features, including:
 \itemize{
-\item quant_preds: min, max, q25, q50, q75, quantiles at selected ci, mean, sd, mode, skewness, kurtosis, IQR to range, median range ratio, upside probability and divergence for each point fo predicted sequences
+\item quant_preds: min, max, q25, q50, q75, quantiles at selected ci, mean, sd, mode, skewness, kurtosis, IQR to range, above to below median range, upside probability and divergence for each point fo predicted sequences
 \item errors: testing errors for each time feature averaged across validation windows
 \item plots: standard plot with confidence interval for each time feature
 }
