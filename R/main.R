@@ -92,12 +92,14 @@ naive <- function(df, seq_len = NULL, ci = 0.8, smoother = FALSE, cover = NULL, 
 
   min_limit <- 2 + max(deriv)
   max_limit <- round(n_length/(2*(n_windows + 1)))
+  if(max_limit < min_limit){stop("not enough data for validation windows")}
+
+  if(is.numeric(seq_len) && any(seq_len < min_limit)){seq_len[seq_len < min_limit] <- min_limit; message("fixing seq_len for min limit")}
+  if(is.numeric(seq_len) && any(seq_len > max_limit)){seq_len[seq_len > max_limit] <- max_limit; message("fixing seq_len for max limit")}
   sqln_set <- sampler(seq_len, n_samp, range = c(min_limit, max_limit), integer = TRUE)
-  sqln_set[sqln_set < min_limit] <- min_limit
-  sqln_set[sqln_set > max_limit] <- max_limit
 
   cvr_set <- sampler(cover, n_samp, range = c(0.1, 0.9), integer = FALSE)
-  strd_set <- sampler(stride, n_samp, range = 1:min(sqln_set), integer = TRUE)
+  strd_set <- sampler(stride, n_samp, range = NULL, integer = TRUE, fun = map_dbl(sqln_set, ~ sample(ceiling(sqrt(.x)), 1)))###STRIDE MUST DEPENDS ON SEQ_LEN, NEED TO FIX
   mthd_set <- sampler(method, n_samp, range = c("euclidean", "manhattan", "minkowski"), integer = FALSE)
   lctn_set <- sampler(location, n_samp, range = c("mean", "median", "mode"), integer = FALSE)
 

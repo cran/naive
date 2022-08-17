@@ -7,3 +7,8 @@
 
 * Rationalization and streamlining of processes.
 * Now naive can manange categorical series.
+
+
+# naive 1.2.0
+
+* Fixed a bug in automatic allocation of stride hyper-parameter.
