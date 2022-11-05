@@ -70,8 +70,11 @@ This function returns a list including:
 Empirical Extrapolation of Time Feature Pattern
 }
 \examples{
-naive(time_features[,c(2, 3)], seq_len = 100, n_samp = 1, n_windows = 3)
-
+\dontrun{
+naive(time_features[, 2:3, drop = F], seq_len = 30, n_samp = 1, n_windows = 5)
+naive(time_features[, 3, drop = F], seq_len = 20, n_samp = 10, n_windows = 5)
+naive(time_features[, -1, drop = F], seq_len = 60, n_samp = 15, n_windows = 5)
+}
 }
 \seealso{
 Useful links:

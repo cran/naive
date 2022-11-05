@@ -12,3 +12,8 @@
 # naive 1.2.0
 
 * Fixed a bug in automatic allocation of stride hyper-parameter.
+
+
+# naive 1.2.1
+
+* Added automatic testing.
