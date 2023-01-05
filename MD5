@@ -1,11 +1,9 @@
-e8b3f9ae55d812c3ac297c7f43159dd4 *DESCRIPTION
+e41602d256d6757fdae05eaa297d30b5 *DESCRIPTION
 dcae7fff7832bf1d1adc9f72c122461b *NAMESPACE
-d8cdc59009c6db8cf6202431b1a4d431 *NEWS.md
+21e1ac02196a38b14766abd2d36d9fae *NEWS.md
 45aff9b3dc21246ebd35d5f9e50ac13d *R/data.R
-0030ac72752edc77d59f9e1e17350fcd *R/main.R
+715199cf1bec051364c32454a355a1bd *R/main.R
 6cebb7315b363423e0fd92c609ede383 *R/naive.R
 c8a7e53822a770798719889c2c40929a *data/time_features.rda
-d4208f4c7b644bb836e7773de6987637 *man/naive.Rd
+a61bc0305915672b33c6db56d986581e *man/naive.Rd
 82f42e0f0dfbc4d40a5be44f03ac8553 *man/time_features.Rd
-5ca76b1a70cc1d01dda861fe5fdc2fa4 *tests/testthat.R
-24c3a0417ec2956cae2e91d35d0eb011 *tests/testthat/test-main.R

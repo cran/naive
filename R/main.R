@@ -51,10 +51,8 @@
 #' @import philentropy
 
 #'@examples
-#'\dontrun{
-#'naive(time_features[, 2:3, drop = F], seq_len = 30, n_samp = 1, n_windows = 5)
-#'naive(time_features[, 3, drop = F], seq_len = 20, n_samp = 10, n_windows = 5)
-#'naive(time_features[, -1, drop = F], seq_len = 60, n_samp = 15, n_windows = 5)
+#'{
+#'naive(time_features[, 2:3, drop = FALSE], seq_len = 30, n_samp = 1, n_windows = 5)
 #'}
 
 
@@ -112,9 +110,9 @@ naive <- function(df, seq_len = NULL, ci = 0.8, smoother = FALSE, cover = NULL, 
   exploration <- pmap(hyper_params, ~ tryCatch(windower(df, ..1, ci, ..2, ..3, ..4, ..5, n_windows, error_scale, error_benchmark, binary_class, dates, seed), error = function(e) NA))
 
   collected <- flatten(map(exploration, ~ .x["errors"]))
-  collected_dim <- length(dim(collected[[1]]))
-  if(collected_dim == 2){avg_error <- as.data.frame(Reduce(rbind, map(collected, ~ apply(.x, 2, mean))))}
-  if(collected_dim == 1){avg_error <- as.data.frame(Reduce(rbind, collected))}
+  collected_dim <- dim(collected[[1]])
+  if(length(collected_dim) == 2){avg_error <- as.data.frame(Reduce(rbind, map(collected, ~ apply(.x, 2, mean))))}
+  if(is.null(collected_dim)){avg_error <- as.data.frame(Reduce(rbind, collected))}
   if(n_samp == 1){avg_error <- t(as.data.frame(avg_error))}
   history <- data.frame(seq_len = sqln_set, cover = round(cvr_set, 4), stride = strd_set, method = mthd_set, location = lctn_set, round(avg_error, 4))
   rownames(history) <- NULL

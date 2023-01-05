@@ -17,3 +17,8 @@
 # naive 1.2.1
 
 * Added automatic testing.
+
+# naive 1.2.2
+
+* Fixed testing issue with testthat.
+
