@@ -107,7 +107,8 @@ naive <- function(df, seq_len = NULL, ci = 0.8, smoother = FALSE, cover = NULL, 
 
   hyper_params <- list(sqln_set, cvr_set, strd_set, mthd_set, lctn_set)
 
-  exploration <- pmap(hyper_params, ~ tryCatch(windower(df, ..1, ci, ..2, ..3, ..4, ..5, n_windows, error_scale, error_benchmark, binary_class, dates, seed), error = function(e) NA))
+  ###exploration <- pmap(hyper_params, ~ tryCatch(windower(df, ..1, ci, ..2, ..3, ..4, ..5, n_windows, error_scale, error_benchmark, binary_class, dates, seed), error = function(e) NA))
+  exploration <- pmap(hyper_params, ~ windower(df, ..1, ci, ..2, ..3, ..4, ..5, n_windows, error_scale, error_benchmark, binary_class, dates, seed))
 
   collected <- flatten(map(exploration, ~ .x["errors"]))
   collected_dim <- dim(collected[[1]])
@@ -116,6 +117,9 @@ naive <- function(df, seq_len = NULL, ci = 0.8, smoother = FALSE, cover = NULL, 
   if(n_samp == 1){avg_error <- t(as.data.frame(avg_error))}
   history <- data.frame(seq_len = sqln_set, cover = round(cvr_set, 4), stride = strd_set, method = mthd_set, location = lctn_set, round(avg_error, 4))
   rownames(history) <- NULL
+
+  ###return(list(exploration, history, avg_error))
+
   if(n_samp > 1){
     if(all_numerics == TRUE){history <- ranker(history, focus = -c(1:5), inverse = NULL, absolute = c("me", "mpe", "sce"), reverse = FALSE)}
     if(all_classes == TRUE){history <- ranker(history, focus = -c(1:5), inverse = NULL, absolute = NULL, reverse = FALSE)}
@@ -143,12 +147,12 @@ windower <- function(df, seq_len, ci = 0.8, cover = 0.5, stride = 1, method = "e
   idx <- c(rep(1, n_length%%(n_windows + 1)), rep(1:(n_windows + 1), each = n_length/(n_windows + 1)))
 
   window_results <- map(1:(n_windows + 1), ~ engine(df[idx <= .x,, drop = FALSE], seq_len, ci, cover, stride, method, location, binary_class, dates[idx <= .x], seed))
+
   ground_truth <- map(1:n_windows, ~ head(df[idx == (.x + 1),, drop = FALSE], seq_len))
   window_hist <- map(1:n_windows, ~ df[idx <= .x,, drop = FALSE])
   if(!all(binary_class)){window_quant_preds <- map_depth(map(window_results, ~ .x$quant_preds), 2, ~ .x[,"mean"])}
   if(all(binary_class)){window_quant_preds <- map_depth(map(window_results, ~ .x$quant_preds), 2, ~ .x[,"prop"])}
   window_raw_preds <- map(window_results, ~ .x$raw_preds)
-
 
   pred_score <- map(transpose(map2(head(window_raw_preds, -1), ground_truth, ~ map2(.x, .y, ~ prediction_score(.x, .y)))), ~ round(colMeans(Reduce(rbind, .x)), 4))
 
@@ -206,19 +210,24 @@ engine <- function(df, seq_len, ci = 0.8, cover = 0.5, stride = 1, method = "euc
   }
 
   idx_sets <- map(dmat_sets, ~ selector(.x, cover, location))
-  core_sets <- map2(segmented_sets, idx_sets,  ~ as.data.frame(.x[.y, ]))
+  core_sets <- map2(segmented_sets, idx_sets,  ~ as.data.frame(.x[.y, , drop = FALSE]))
 
-  empirical <- function(vect, n){sample(vect, size = n, replace = TRUE)}
+  ###empirical <- function(vect, n){sample(vect, size = n, replace = TRUE)}
+  empirical <- function(df, n){as.data.frame(apply(df, 2, function(x) sample(x, size = n, replace = TRUE)))}
 
-  if(seq_len > 1){
-    diff_preds <- map(map_depth(core_sets, 2, ~ empirical(.x, 1000)), ~ Reduce(cbind, .x))
+  #print(core_sets)
+  #print(class(core_sets[[1]]))
+
+  #if(seq_len > 1){
+    ##diff_preds <- map(map_depth(core_sets, 2, ~ empirical(.x, 1000)), ~ Reduce(cbind, .x))
+    diff_preds <- map(core_sets, ~ empirical(.x, 1000))
     raw_preds <- map2(diff_models, diff_preds, ~ t(apply(.y, 1, function(x) invdiff(x, .x$tail_value))))
-  }
+  #}
 
-  if(seq_len == 1){
-    diff_preds <- map(map_depth(core_sets, 2, ~ empirical(.x, 1000)), ~ t(Reduce(cbind, .x)))
-    raw_preds <- map2(diff_models, diff_preds, ~ apply(.y, 1, function(x) invdiff(x, .x$tail_value)))
-  }
+  #if(seq_len == 1){
+    #diff_preds <- map(map_depth(core_sets, 2, ~ empirical(.x, 1000)), ~ t(Reduce(cbind, .x)))
+    #raw_preds <- map2(diff_models, diff_preds, ~ apply(.y, 1, function(x) invdiff(x, .x$tail_value)))
+  #}
 
   raw_preds <-  pmap(list(df, raw_preds, binary_class), ~ doxa_filter(..1, ..2, ..3))
   quant_preds <-  pmap(list(df, raw_preds, binary_class), ~ fast_qpred(raw_pred = ..2, ts = ..1, ci, error_scale, error_benchmark, binary_class = ..3, dates, seed))

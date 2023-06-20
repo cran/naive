@@ -22,3 +22,7 @@
 
 * Fixed testing issue with testthat.
 
+# naive 1.2.3
+
+* Fixed bug.
+
